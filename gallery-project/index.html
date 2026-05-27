@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aesthetic Frame - Galeri Foto Supabase</title>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Loading Animation Overlay -->
+  <div id="loading-overlay" class="active">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">
+          <i data-lucide="camera"></i>
+        </div>
+        <h1 class="brand-title serif font-semibold">Aesthetic<span style="color: var(--accent);">Frame</span></h1>
+      </a>
+      <nav class="nav-links">
+        <a href="admin.html" class="btn btn-secondary">
+          <i data-lucide="user-check"></i> Admin Panel
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2 class="hero-title serif text-primary">Abadikan Momen, Sentuh Jiwa.</h2>
+    <p class="hero-subtitle">Koleksi karya fotografi modern terkurasi, disimpan secara aman menggunakan realtime database dan storage dari Supabase.</p>
+  </section>
+
+  <!-- Category Filters -->
+  <div class="filter-container" id="category-filters">
+    <button class="filter-btn active" data-category="all">Semua Foto</button>
+    <!-- Kategori dinamis akan dirender dari JS -->
+  </div>
+
+  <!-- Gallery Section -->
+  <main class="gallery-section">
+    <div class="gallery-grid" id="gallery-grid">
+      <!-- Foto-foto dari Supabase akan dirender di sini -->
+    </div>
+
+    <!-- Empty State jika galeri kosong -->
+    <div id="empty-gallery" class="empty-gallery" style="display: none;">
+      <i data-lucide="image-off" style="width: 48px; height: 48px;"></i>
+      <h3 class="serif">Belum ada foto</h3>
+      <p>Halaman galeri masih kosong. Silakan masuk ke halaman admin untuk mengupload foto pertama Anda.</p>
+      <br>
+      <a href="admin.html" class="btn btn-primary">Ke Halaman Admin</a>
+    </div>
+  </main>
+
+  <!-- Lightbox Modal Full Screen -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close">
+      <i data-lucide="x"></i>
+    </button>
+    <div class="lightbox-content">
+      <div class="lightbox-media">
+        <img src="" alt="" class="lightbox-image" id="lightbox-img">
+      </div>
+      <div class="lightbox-details">
+        <span class="lightbox-category" id="lightbox-cat">Kategori</span>
+        <h2 class="lightbox-title serif" id="lightbox-title">Judul Foto</h2>
+        <p class="lightbox-desc" id="lightbox-desc">Deskripsi foto yang lengkap di sini.</p>
+        <div class="lightbox-meta">
+          <div><i data-lucide="calendar" style="width: 14px; height: 14px; display: inline; vertical-align: -1px; margin-right: 6px;"></i> <span id="lightbox-date">Tanggal diupload</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Gallery Page Logic -->
+  <script type="module" src="gallery.js"></script>
+
+</body>
+</html>

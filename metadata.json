@@ -1,0 +1,6 @@
+{
+  "name": "Supabase Web Gallery",
+  "description": "Halaman galeri publik dan panel admin modern menggunakan HTML, CSS, dan JS vanilla yang terintegrasi secara langsung dengan database dan storage Supabase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
