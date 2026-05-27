@@ -65,6 +65,7 @@ const MOCK_PHOTOS = [
 let supabaseClient = null;
 let photos = [];
 let activeCategory = 'all';
+let currentLightboxPhoto = null;
 
 // Cek konfigurasi Supabase
 const isConfigured = SUPABASE_URL !== "YOUR_SUPABASE_URL" && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY" && SUPABASE_URL !== "" && SUPABASE_ANON_KEY !== "";
@@ -99,6 +100,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Daftarkan listener event umum
   setupModalEvents();
   setupThemeToggle();
+  setupLightboxInteractiveActions();
   
   // Inisialisasi ikon Lucide
   lucide.createIcons();
@@ -222,6 +224,14 @@ async function loadPhotos() {
     // Urutkan buatan berdasarkan created_at desc
     photos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
+
+  // Lengkapi dengan nilai default statistik jika belum ada entri di db/mock
+  photos = photos.map(p => ({
+    ...p,
+    likes: p.likes || 0,
+    views: p.views || 0,
+    downloads: p.downloads || 0
+  }));
 }
 
 // Merender Tombol Filter Kategori Secara Dinamis
@@ -295,6 +305,7 @@ function renderGallery() {
   filteredPhotos.forEach((photo) => {
     const card = document.createElement('div');
     card.className = 'gallery-item';
+    card.dataset.id = photo.id;
     
     // Gunakan static placeholder jika gambar error atau tidak valid
     const imageSource = photo.image_url;
@@ -304,7 +315,13 @@ function renderGallery() {
         <img src="${imageSource}" alt="${photo.title}" class="gallery-img" loading="lazy">
       </div>
       <div class="gallery-caption">
-        <span class="gallery-tag">${escapeHTML(photo.category || 'General')}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span class="gallery-tag">${escapeHTML(photo.category || 'General')}</span>
+          <div class="photo-card-stats" style="display: flex; gap: 10px; font-size: 0.75rem; color: var(--text-muted); align-items: center;">
+            <span style="display: flex; align-items: center; gap: 3px;"><i data-lucide="eye" style="width: 12px; height: 12px;"></i> <span class="card-views-count">${photo.views || 0}</span></span>
+            <span style="display: flex; align-items: center; gap: 3px;"><i data-lucide="heart" style="width: 12px; height: 12px;"></i> <span class="card-likes-count">${photo.likes || 0}</span></span>
+          </div>
+        </div>
         <h3 class="gallery-item-title">${escapeHTML(photo.title)}</h3>
         <p class="gallery-item-desc">${escapeHTML(photo.description || '')}</p>
       </div>
@@ -338,7 +355,14 @@ function openLightbox(photo) {
   const lightboxDesc = document.getElementById('lightbox-desc');
   const lightboxDate = document.getElementById('lightbox-date');
   
+  const viewsEl = document.getElementById('lightbox-views');
+  const likesEl = document.getElementById('lightbox-likes');
+  const downloadsEl = document.getElementById('lightbox-downloads');
+  
   if (!lightbox) return;
+
+  // Set context foto interaktif aktif saat ini
+  currentLightboxPhoto = photo;
 
   // Isi data
   lightboxImg.src = photo.image_url;
@@ -347,6 +371,14 @@ function openLightbox(photo) {
   lightboxCat.textContent = photo.category || 'General';
   lightboxDesc.textContent = photo.description || 'Tidak ada deskripsi.';
   
+  // Set statistik terupdate
+  if (viewsEl) viewsEl.textContent = photo.views || 0;
+  if (likesEl) likesEl.textContent = photo.likes || 0;
+  if (downloadsEl) downloadsEl.textContent = photo.downloads || 0;
+
+  // Update tombol like agar menyala atau mati sesuai feedback history browser
+  updateLikeBtnState(photo.id);
+
   // Format tanggal lokalisasi bahasa Indonesia
   try {
     const dateConverted = new Date(photo.created_at);
@@ -359,6 +391,205 @@ function openLightbox(photo) {
   // Tampilkan container modal
   lightbox.classList.add('active');
   document.body.style.overflow = 'hidden'; // Kunci scroll layar utama
+  
+  // Tingkatkan Tayangan (View Count) secara non-blocking
+  incrementPhotoViews(photo);
+}
+
+// Menambahkan jumlah tayangan/viewer foto
+async function incrementPhotoViews(photo) {
+  photo.views = (photo.views || 0) + 1;
+  
+  // Update UI Lightbox & Card Grid secara instant
+  const viewsEl = document.getElementById('lightbox-views');
+  if (viewsEl) viewsEl.textContent = photo.views;
+  
+  const card = document.querySelector(`.gallery-item[data-id="${photo.id}"]`);
+  if (card) {
+    const cardViewsEl = card.querySelector('.card-views-count');
+    if (cardViewsEl) cardViewsEl.textContent = photo.views;
+  }
+  
+  // Simpan permanen
+  if (isConfigured && supabaseClient) {
+    try {
+      await supabaseClient
+        .from('photos')
+        .update({ views: photo.views })
+        .eq('id', photo.id);
+    } catch (err) {
+      console.error("Gagal melakukan sinkronisasi views ke Supabase:", err);
+    }
+  } else {
+    updateLocalPhotoState(photo);
+  }
+}
+
+// Setup Event Listener Klik untuk Suka dan Unduh di Lightbox
+function setupLightboxInteractiveActions() {
+  const likeBtn = document.getElementById('lightbox-like-btn');
+  const downloadBtn = document.getElementById('lightbox-download-action-btn');
+  
+  if (likeBtn) {
+    likeBtn.addEventListener('click', async () => {
+      if (!currentLightboxPhoto) return;
+      const photo = currentLightboxPhoto;
+      
+      const likedPhotos = JSON.parse(localStorage.getItem('liked_photos') || '[]');
+      const isAlreadyLiked = likedPhotos.includes(photo.id);
+      
+      if (isAlreadyLiked) {
+        // Batal suka
+        photo.likes = Math.max(0, (photo.likes || 0) - 1);
+        const updatedLikes = likedPhotos.filter(id => id !== photo.id);
+        localStorage.setItem('liked_photos', JSON.stringify(updatedLikes));
+        showToast("Batal menyukai foto ini.", "info");
+      } else {
+        // Suka
+        photo.likes = (photo.likes || 0) + 1;
+        likedPhotos.push(photo.id);
+        localStorage.setItem('liked_photos', JSON.stringify(likedPhotos));
+        showToast("Menyukai karya foto ini! ❤️", "success");
+      }
+      
+      // Update UI Lightbox & Grid Card stats secara real-time
+      updateLikeBtnState(photo.id);
+      const likesEl = document.getElementById('lightbox-likes');
+      if (likesEl) likesEl.textContent = photo.likes;
+      
+      const card = document.querySelector(`.gallery-item[data-id="${photo.id}"]`);
+      if (card) {
+        const cardLikesEl = card.querySelector('.card-likes-count');
+        if (cardLikesEl) cardLikesEl.textContent = photo.likes;
+      }
+      
+      // Persist data
+      if (isConfigured && supabaseClient) {
+        try {
+          await supabaseClient
+            .from('photos')
+            .update({ likes: photo.likes })
+            .eq('id', photo.id);
+        } catch (err) {
+          console.error("Gagal update suka ke Supabase:", err);
+        }
+      } else {
+        updateLocalPhotoState(photo);
+      }
+    });
+  }
+  
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', async () => {
+      if (!currentLightboxPhoto) return;
+      const photo = currentLightboxPhoto;
+      
+      showToast("Sedang memproses unduhan gambar...", "info");
+      
+      // Tingkatkan data unduhan
+      photo.downloads = (photo.downloads || 0) + 1;
+      const downloadsEl = document.getElementById('lightbox-downloads');
+      if (downloadsEl) downloadsEl.textContent = photo.downloads;
+      
+      // Trigger download berkas riil
+      const safeFileName = `${photo.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_')}.jpg`;
+      triggerFileDownload(photo.image_url, safeFileName);
+      
+      // Persist data unduhan
+      if (isConfigured && supabaseClient) {
+        try {
+          await supabaseClient
+            .from('photos')
+            .update({ downloads: photo.downloads })
+            .eq('id', photo.id);
+        } catch (err) {
+          console.error("Gagal simpan unduhan Supabase:", err);
+        }
+      } else {
+        updateLocalPhotoState(photo);
+      }
+    });
+  }
+}
+
+// Sinkronkan styling tombol Suka berbasis penyimpanan lokal browser
+function updateLikeBtnState(photoId) {
+  const likeBtn = document.getElementById('lightbox-like-btn');
+  const likeIcon = document.getElementById('lightbox-like-icon');
+  const likeText = document.getElementById('lightbox-like-text');
+  
+  if (!likeBtn) return;
+  
+  const likedPhotos = JSON.parse(localStorage.getItem('liked_photos') || '[]');
+  const isLiked = likedPhotos.includes(photoId);
+  
+  if (isLiked) {
+    likeBtn.classList.add('liked');
+    likeBtn.style.color = '#ef4444';
+    likeBtn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+    likeBtn.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+    if (likeText) likeText.textContent = 'Disukai';
+    if (likeIcon) {
+      likeIcon.setAttribute('fill', '#ef4444');
+      likeIcon.style.fill = '#ef4444';
+    }
+  } else {
+    likeBtn.classList.remove('liked');
+    likeBtn.style.color = '';
+    likeBtn.style.borderColor = '';
+    likeBtn.style.backgroundColor = '';
+    if (likeText) likeText.textContent = 'Suka';
+    if (likeIcon) {
+      likeIcon.removeAttribute('fill');
+      likeIcon.style.fill = '';
+    }
+  }
+}
+
+// Logika download via Blob byte stream agar performa unduh murni & terjamin
+async function triggerFileDownload(url, filename) {
+  try {
+    // Dukungan download base64 langsung (Mode simulasi lokal upload)
+    if (url.startsWith('data:')) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("Foto berhasil diunduh!", "success");
+      return;
+    }
+
+    const response = await fetch(url, { mode: 'cors' });
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(blobUrl);
+    showToast("Foto berhasil diunduh!", "success");
+  } catch (err) {
+    console.warn("Issue kebijakan CORS terdeteksi saat unduh Blob. Mengalihkan ke unduhan fallback...", err);
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.click();
+    showToast("Membuka foto di tab baru. Silakan klik kanan pilih Simpan Gambar.", "success");
+  }
+}
+
+// Helper memperbarui entri database simulasi lokal
+function updateLocalPhotoState(updatedPhoto) {
+  const localPhotos = JSON.parse(localStorage.getItem('aesthetic_frame_photos') || '[]');
+  const index = localPhotos.findIndex(p => p.id === updatedPhoto.id);
+  if (index !== -1) {
+    localPhotos[index] = { ...localPhotos[index], ...updatedPhoto };
+    localStorage.setItem('aesthetic_frame_photos', JSON.stringify(localPhotos));
+  }
 }
 
 function closeLightbox() {

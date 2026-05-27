@@ -12,8 +12,16 @@ CREATE TABLE IF NOT EXISTS public.photos (
     category TEXT,
     image_url TEXT NOT NULL, -- URL langsung ke image di Supabase Storage
     file_path TEXT NOT NULL, -- path relatif file di bucket
+    likes INTEGER DEFAULT 0,
+    views INTEGER DEFAULT 0,
+    downloads INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- JIKA ANDA TELAH MEMILIKI TABEL PHOTOS CONTOH SEBELUMNYA, JALANKAN UNTUK MENAMBAH KOLOM METRIK STATISTIK:
+-- ALTER TABLE public.photos ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
+-- ALTER TABLE public.photos ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0;
+-- ALTER TABLE public.photos ADD COLUMN IF NOT EXISTS downloads INTEGER DEFAULT 0;
 
 -- ==========================================
 -- 2. ENABLING ROW LEVEL SECURITY (RLS)
@@ -45,6 +53,14 @@ CREATE POLICY "Allow authenticated update on photos"
 ON public.photos FOR UPDATE 
 TO authenticated 
 USING (true) 
+WITH CHECK (true);
+
+-- Policy: Publik (Anon & Auth) dapat memperbarui data foto (misal: view count, likes, download count)
+DROP POLICY IF EXISTS "Allow public update on photos" ON public.photos;
+CREATE POLICY "Allow public update on photos" 
+ON public.photos FOR UPDATE 
+TO public 
+USING (true)
 WITH CHECK (true);
 
 -- Policy: Hanya user yang login (Authenticated saja) yang bisa hapus foto

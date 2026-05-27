@@ -209,6 +209,14 @@ async function fetchPhotos() {
     // Urutkan data descending
     currentPhotos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
+
+  // Petakan nilai stat jika properti tersebut belum ada
+  currentPhotos = currentPhotos.map(p => ({
+    ...p,
+    likes: p.likes || 0,
+    views: p.views || 0,
+    downloads: p.downloads || 0
+  }));
 }
 
 // Render data foto ke Card Grid di Admin Tab
@@ -247,6 +255,23 @@ function renderAdminTable() {
         </div>
         <h3 class="admin-photo-title">${escapeHTML(photo.title)}</h3>
         <p class="admin-photo-desc">${escapeHTML(photo.description || '')}</p>
+        
+        <!-- Statistik Indikator Dashboard Admin -->
+        <div class="admin-photo-stats" style="display: flex; gap: 16px; margin: 12px 0; font-size: 0.75rem; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+          <span style="display: flex; align-items: center; gap: 5px;" title="Tayangan">
+            <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+            <strong>${photo.views || 0}</strong> Tayangan
+          </span>
+          <span style="display: flex; align-items: center; gap: 5px;" title="Menyukai">
+            <i data-lucide="heart" style="width: 14px; height: 14px; color: #ef4444; fill: #ef4444;"></i>
+            <strong>${photo.likes || 0}</strong> Suka
+          </span>
+          <span style="display: flex; align-items: center; gap: 5px;" title="Unduhan">
+            <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+            <strong>${photo.downloads || 0}</strong> Unduhan
+          </span>
+        </div>
+
         <div class="admin-photo-actions">
           <button class="btn btn-secondary btn-edit-photo" data-id="${photo.id}">
             <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> Edit

@@ -89,7 +89,37 @@
         <span class="lightbox-category" id="lightbox-cat">Kategori</span>
         <h2 class="lightbox-title serif" id="lightbox-title">Judul Foto</h2>
         <p class="lightbox-desc" id="lightbox-desc">Deskripsi foto yang lengkap di sini.</p>
-        <div class="lightbox-meta">
+        
+        <!-- Statistik & Tombol Aksi (Like, Download, View) -->
+        <div class="lightbox-stats-actions" style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 16px;">
+          <div class="lightbox-stats-container" style="display: flex; gap: 16px; font-size: 0.9rem; color: var(--text-secondary);">
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+              <span id="lightbox-views">0</span> Tayangan
+            </span>
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="heart" style="width: 16px; height: 16px;"></i>
+              <span id="lightbox-likes">0</span> Menyukai
+            </span>
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+              <span id="lightbox-downloads">0</span> Unduhan
+            </span>
+          </div>
+          
+          <div class="lightbox-actions-container" style="display: flex; gap: 12px; margin-top: 4px;">
+            <button class="btn btn-secondary" id="lightbox-like-btn" style="flex: 1; justify-content: center; transform: none; min-height: 42px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+              <i data-lucide="heart" id="lightbox-like-icon" style="width: 18px; height: 18px;"></i>
+              <span id="lightbox-like-text">Suka</span>
+            </button>
+            <button class="btn btn-primary" id="lightbox-download-action-btn" style="flex: 1; justify-content: center; transform: none; min-height: 42px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+              <i data-lucide="download" style="width: 18px; height: 18px;"></i>
+              <span>Unduh Foto</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="lightbox-meta" style="margin-top: 18px;">
           <div><i data-lucide="calendar" style="width: 14px; height: 14px; display: inline; vertical-align: -1px; margin-right: 6px;"></i> <span id="lightbox-date">Tanggal diupload</span></div>
         </div>
       </div>

@@ -213,7 +213,7 @@ h1, h2, h3, h4, h5 {
   0% {
     transform: rotate(0deg);
   }
-  10% {
+  35% {
     transform: rotate(360deg);
   }
   100% {
@@ -364,7 +364,7 @@ textarea.form-control {
 
 .brand-icon i, .brand-icon svg {
   display: inline-block;
-  animation: cameraRotateCycle 20s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+  animation: cameraRotateCycle 10s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 
 .brand:hover .brand-icon {
