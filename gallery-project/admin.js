@@ -163,11 +163,11 @@ function showAuthScreen(show) {
   if (show) {
     if (authSection) authSection.style.display = 'flex';
     if (dashboardSection) dashboardSection.style.display = 'none';
-    document.title = "Masuk - Aesthetic Frame Admin";
+    document.title = "Masuk - ZennPhoto Admin";
   } else {
     if (authSection) authSection.style.display = 'none';
     if (dashboardSection) dashboardSection.style.display = 'grid';
-    document.title = "Dashboard - Aesthetic Frame Admin";
+    document.title = "Dashboard - ZennPhoto Admin";
   }
 }
 
