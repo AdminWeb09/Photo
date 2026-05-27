@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZennPhoto - Galeri Foto Supabase</title>
   
+  <!-- Flicker-free Theme Initializer -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
+      }
+    })();
+  </script>
+  
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -28,6 +38,9 @@
         <h1 class="brand-title serif font-semibold">Zenn<span style="color: var(--accent);">Photo</span></h1>
       </a>
       <nav class="nav-links">
+        <button id="theme-toggle" class="btn btn-secondary" style="border-radius: 50%; width: 40px; height: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Ganti Tema">
+          <i data-lucide="sun"></i>
+        </button>
         <a href="admin.html" class="btn btn-secondary">
           <i data-lucide="user-check"></i> Admin Panel
         </a>

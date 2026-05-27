@@ -98,6 +98,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   // Daftarkan listener event umum
   setupModalEvents();
+  setupThemeToggle();
   
   // Inisialisasi ikon Lucide
   lucide.createIcons();
@@ -409,4 +410,42 @@ function escapeHTML(str) {
       '"': '&quot;'
     }[tag] || tag)
   );
+}
+
+// Fitur Ganti Tema (Terang / Gelap)
+function setupThemeToggle() {
+  const toggleBtn = document.getElementById('theme-toggle');
+  if (!toggleBtn) return;
+  
+  const isLight = document.documentElement.classList.contains('light-theme');
+  updateThemeIcon(isLight);
+  
+  toggleBtn.addEventListener('click', () => {
+    const currentlyLight = document.documentElement.classList.contains('light-theme');
+    if (currentlyLight) {
+      document.documentElement.classList.remove('light-theme');
+      localStorage.setItem('theme', 'dark');
+      updateThemeIcon(false);
+    } else {
+      document.documentElement.classList.add('light-theme');
+      localStorage.setItem('theme', 'light');
+      updateThemeIcon(true);
+    }
+  });
+}
+
+function updateThemeIcon(isLight) {
+  const toggleBtn = document.getElementById('theme-toggle');
+  if (!toggleBtn) return;
+  const icon = toggleBtn.querySelector('i') || toggleBtn.querySelector('svg');
+  if (icon) {
+    if (isLight) {
+      icon.setAttribute('data-lucide', 'moon');
+    } else {
+      icon.setAttribute('data-lucide', 'sun');
+    }
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  }
 }

@@ -174,6 +174,65 @@ h1, h2, h3, h4, h5 {
   }
 }
 
+/* Custom Creative Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes floatHorizontal {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes cameraRotateCycle {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gradientMoving {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -300,11 +359,29 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   color: #000;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+}
+
+.brand-icon i, .brand-icon svg {
+  display: inline-block;
+  animation: cameraRotateCycle 20s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+.brand:hover .brand-icon {
+  transform: rotate(-12deg) scale(1.15);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
 }
 
 .brand-title {
   font-size: 1.5rem;
   letter-spacing: -0.5px;
+  transition: color 0.3s ease;
+  display: inline-block;
+  animation: floatHorizontal 3s ease-in-out infinite;
+}
+
+.brand:hover .brand-title {
+  color: var(--accent);
 }
 
 .nav-links {
@@ -325,13 +402,24 @@ textarea.form-control {
   font-size: 3.5rem;
   margin-bottom: 16px;
   letter-spacing: -1px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%, #f8fafc 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both, gradientMoving 6s linear infinite;
 }
 
 .hero-subtitle {
-  color: var(--text-secondary);
   font-size: 1.125rem;
   max-width: 600px;
   margin: 0 auto;
+  background: linear-gradient(135deg, #94a3b8 0%, #f59e0b 30%, #ffffff 50%, #f59e0b 70%, #94a3b8 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both, gradientMoving 8s linear infinite;
 }
 
 /* Filters Component */
@@ -342,6 +430,7 @@ textarea.form-control {
   flex-wrap: wrap;
   margin-bottom: 48px;
   padding: 0 24px;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
 }
 
 .filter-btn {
@@ -352,12 +441,17 @@ textarea.form-control {
   font-size: 0.875rem;
   border-radius: 30px;
   cursor: pointer;
-  transition: all var(--transition-normal);
+  transition: all var(--transition-normal), transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .filter-btn:hover {
   border-color: var(--accent);
   color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.filter-btn:active {
+  transform: translateY(1px) scale(0.97);
 }
 
 .filter-btn.active {
@@ -390,12 +484,13 @@ textarea.form-control {
   break-inside: avoid;
   transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
   cursor: pointer;
+  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .gallery-item:hover {
-  transform: translateY(-6px);
+  transform: translateY(-8px) scale(1.02);
   border-color: var(--accent);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
 }
 
 .gallery-img-container {
@@ -410,7 +505,7 @@ textarea.form-control {
   height: auto;
   display: block;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
   opacity: 0; /* Untuk lazy loading fade-in */
 }
 
@@ -419,7 +514,7 @@ textarea.form-control {
 }
 
 .gallery-item:hover .gallery-img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 /* Overlay Details */
@@ -472,18 +567,19 @@ textarea.form-control {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(6, 9, 15, 0.95);
+  background-color: rgba(6, 9, 15, 0.85);
   z-index: 999;
   display: flex;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--transition-normal);
-  backdrop-filter: blur(10px);
+  transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
+  backdrop-filter: blur(0px);
 }
 
 .lightbox.active {
   opacity: 1;
   pointer-events: all;
+  backdrop-filter: blur(15px);
 }
 
 .lightbox-content {
@@ -508,6 +604,14 @@ textarea.form-control {
   object-fit: contain;
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-xl);
+  transform: scale(0.9) translateY(15px);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+
+.lightbox.active .lightbox-image {
+  transform: scale(1) translateY(0);
+  opacity: 1;
 }
 
 .lightbox-details {
@@ -517,6 +621,14 @@ textarea.form-control {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  transform: translateX(30px);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.lightbox.active .lightbox-details {
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .lightbox-close {
@@ -999,3 +1111,161 @@ textarea.form-control {
     padding: 24px 16px;
   }
 }
+
+/* ==========================================================================
+   SMOOTH THEME TRANSITIONS & LIGHT THEME OVERRIDES
+   ========================================================================== */
+
+/* Smooth Transitions for Theme Specific Elements */
+body, 
+.app-header, 
+.admin-sidebar, 
+.admin-main, 
+.auth-container, 
+.auth-wrapper, 
+.gallery-item, 
+.filter-btn, 
+.btn, 
+.lightbox, 
+.form-control,
+.lightbox-close,
+.lightbox-details {
+  transition: background var(--transition-normal), 
+              background-color var(--transition-normal), 
+              border-color var(--transition-normal), 
+              color var(--transition-normal), 
+              box-shadow var(--transition-normal),
+              transform var(--transition-normal);
+}
+
+/* Light Theme Variables definition */
+:root.light-theme, body.light-theme {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  
+  --accent: #d97706; /* High contrast amber on light bg */
+  --accent-hover: #b45309;
+  --accent-light: rgba(217, 119, 6, 0.1);
+  
+  --border-color: #cbd5e1;
+  --border-focus: #94a3b8;
+}
+
+/* Light Theme Overrides */
+html.light-theme .app-header {
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.95) 0%, rgba(248, 250, 252, 0) 100%);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+html.light-theme .brand-title {
+  color: #0f172a;
+}
+
+html.light-theme .hero-title {
+  background: linear-gradient(135deg, #0f172a 0%, #d97706 25%, #f59e0b 50%, #d97706 75%, #0f172a 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html.light-theme .hero-subtitle {
+  background: linear-gradient(135deg, #475569 0%, #d97706 30%, #334155 50%, #d97706 70%, #475569 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html.light-theme .gallery-item {
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+html.light-theme .gallery-item:hover {
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+}
+
+html.light-theme .filter-btn {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+html.light-theme .filter-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+html.light-theme .filter-btn.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+}
+
+html.light-theme .lightbox {
+  background-color: rgba(248, 250, 252, 0.9);
+}
+
+html.light-theme .lightbox-title {
+  color: #0f172a;
+}
+
+html.light-theme .lightbox-desc {
+  color: #475569;
+}
+
+html.light-theme .lightbox-close {
+  color: #475569;
+  background-color: rgba(15, 23, 42, 0.05);
+}
+
+html.light-theme .lightbox-close:hover {
+  color: #0f172a;
+  background-color: rgba(15, 23, 42, 0.1);
+}
+
+/* Auth / Admin Specific Light Theme Adjustments */
+html.light-theme .auth-container {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+}
+
+html.light-theme .admin-sidebar {
+  border-right: 1px solid #cbd5e1;
+}
+
+html.light-theme .sidebar-nav .nav-item {
+  color: #475569;
+}
+
+html.light-theme .sidebar-nav .nav-item:hover {
+  background-color: rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+}
+
+html.light-theme .sidebar-nav .nav-item.active {
+  background-color: rgba(217, 119, 6, 0.18);
+  color: var(--accent);
+}
+
+html.light-theme .sidebar-nav .nav-item i {
+  color: inherit;
+}
+
+html.light-theme .upload-box {
+  background-color: rgba(15, 23, 42, 0.02);
+}
+
+html.light-theme .upload-box:hover, 
+html.light-theme .upload-box.dragover {
+  background-color: rgba(217, 119, 6, 0.04);
+}
+

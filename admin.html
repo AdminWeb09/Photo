@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - ZennPhoto</title>
   
+  <!-- Flicker-free Theme Initializer -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-theme');
+      }
+    })();
+  </script>
+  
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -84,6 +94,9 @@
 
       <!-- Footer logout -->
       <div class="sidebar-footer">
+        <button id="theme-toggle" class="btn btn-secondary" style="width: 100%; margin-bottom: 8px;">
+          <i data-lucide="sun"></i> Ganti Tema
+        </button>
         <button id="btn-logout" class="btn btn-secondary" style="width: 100%; color: var(--error); border-color: rgba(239, 68, 68, 0.25);">
           <i data-lucide="log-out"></i> Keluar
         </button>
