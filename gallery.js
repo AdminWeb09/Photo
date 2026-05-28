@@ -82,6 +82,9 @@ if (isConfigured) {
 window.addEventListener('DOMContentLoaded', async () => {
   showSpinner(true);
   
+  // Memulai typewriter effect di brand
+  initTypewriter();
+  
   // Jika dalam mode simulasi, render banner warning secara elegan
   if (!isConfigured) {
     showConfigWarning();
@@ -107,6 +110,66 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   showSpinner(false);
 });
+
+// Efek mesin ketik (typewriter) pada brand logo secara dinamis
+function initTypewriter() {
+  const brandTitle = document.getElementById('typing-brand');
+  if (!brandTitle) return;
+  
+  const text = 'ZennPhoto';
+  let index = 0;
+  let isDeleting = false;
+  
+  // Sisipkan kontainer penampung teks ketikan dan kursor berkedip
+  brandTitle.innerHTML = `<span id="typed-text"></span><span class="typed-cursor">|</span>`;
+  const typedSpan = document.getElementById('typed-text');
+  
+  function type() {
+    if (!isDeleting) {
+      const currentText = text.substring(0, index + 1);
+      if (currentText.startsWith('Zenn')) {
+        const photoPart = currentText.substring(4);
+        typedSpan.innerHTML = `Zenn<span style="color: var(--accent);">${photoPart}</span>`;
+      } else {
+        typedSpan.innerHTML = currentText;
+      }
+      
+      index++;
+      
+      if (index === text.length) {
+        // Jeda ketika selesai mengetik penuh sebelum menghapus kembali
+        setTimeout(() => {
+          isDeleting = true;
+          type();
+        }, 4000);
+        return;
+      }
+    } else {
+      const currentText = text.substring(0, index - 1);
+      if (currentText.startsWith('Zenn')) {
+        const photoPart = currentText.substring(4);
+        typedSpan.innerHTML = `Zenn<span style="color: var(--accent);">${photoPart}</span>`;
+      } else {
+        typedSpan.innerHTML = currentText;
+      }
+      
+      index--;
+      
+      if (index === 0) {
+        isDeleting = false;
+        // Jeda pendek sebelum memulai siklus pengetikan ulang
+        setTimeout(type, 1500);
+        return;
+      }
+    }
+    
+    const speed = isDeleting ? 75 : 150;
+    setTimeout(type, speed);
+  }
+  
+  // Mulai ketik pertama kali
+  setTimeout(type, 1000);
+}
 
 // Toast Notification Manager
 export function showToast(message, type = 'info') {

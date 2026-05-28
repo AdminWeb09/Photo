@@ -380,6 +380,18 @@ textarea.form-control {
   animation: floatHorizontal 3s ease-in-out infinite;
 }
 
+.typed-cursor {
+  font-weight: 300;
+  margin-left: 2px;
+  display: inline-block;
+  animation: cursorBlink 0.8s infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .brand:hover .brand-title {
   color: var(--accent);
 }
@@ -400,14 +412,16 @@ textarea.form-control {
 
 .hero-title {
   font-size: 3.5rem;
+  font-weight: 800;
   margin-bottom: 16px;
   letter-spacing: -1px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%, #f8fafc 100%);
-  background-size: 200% auto;
+  background: linear-gradient(135deg, #f8fafc 0%, #f59e0b 20%, #ea580c 40%, #fbbf24 60%, #f59e0b 80%, #f8fafc 100%);
+  background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both, gradientMoving 6s linear infinite;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both, gradientMoving 5s linear infinite;
+  text-shadow: 0 0 40px rgba(245, 158, 11, 0.1);
 }
 
 .hero-subtitle {
@@ -1168,8 +1182,8 @@ html.light-theme .brand-title {
 }
 
 html.light-theme .hero-title {
-  background: linear-gradient(135deg, #0f172a 0%, #d97706 25%, #f59e0b 50%, #d97706 75%, #0f172a 100%);
-  background-size: 200% auto;
+  background: linear-gradient(135deg, #0f172a 0%, #b45309 20%, #ea580c 40%, #e11d48 60%, #ea580c 80%, #0f172a 100%);
+  background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
