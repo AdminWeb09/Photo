@@ -380,10 +380,6 @@ function renderGallery() {
       <div class="gallery-caption">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <span class="gallery-tag">${escapeHTML(photo.category || 'General')}</span>
-          <div class="photo-card-stats" style="display: flex; gap: 10px; font-size: 0.75rem; color: var(--text-muted); align-items: center;">
-            <span style="display: flex; align-items: center; gap: 3px;"><i data-lucide="eye" style="width: 12px; height: 12px;"></i> <span class="card-views-count">${photo.views || 0}</span></span>
-            <span style="display: flex; align-items: center; gap: 3px;"><i data-lucide="heart" style="width: 12px; height: 12px;"></i> <span class="card-likes-count">${photo.likes || 0}</span></span>
-          </div>
         </div>
         <h3 class="gallery-item-title">${escapeHTML(photo.title)}</h3>
         <p class="gallery-item-desc">${escapeHTML(photo.description || '')}</p>
@@ -454,9 +450,6 @@ function openLightbox(photo) {
   // Tampilkan container modal
   lightbox.classList.add('active');
   document.body.style.overflow = 'hidden'; // Kunci scroll layar utama
-  
-  // Tingkatkan Tayangan (View Count) secara non-blocking
-  incrementPhotoViews(photo);
 }
 
 // Menambahkan jumlah tayangan/viewer foto
@@ -554,9 +547,9 @@ function setupLightboxInteractiveActions() {
       const downloadsEl = document.getElementById('lightbox-downloads');
       if (downloadsEl) downloadsEl.textContent = photo.downloads;
       
-      // Trigger download berkas riil
-      const safeFileName = `${photo.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_')}.jpg`;
-      triggerFileDownload(photo.image_url, safeFileName);
+      // Trigger download berkas riil dengan layout berbingkai + copyright watermark
+      const safeFileName = `${photo.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_')}_framed.jpg`;
+      triggerFileDownload(photo.image_url, safeFileName, photo.title);
       
       // Persist data unduhan
       if (isConfigured && supabaseClient) {
@@ -610,9 +603,113 @@ function updateLikeBtnState(photoId) {
 }
 
 // Logika download via Blob byte stream agar performa unduh murni & terjamin
-async function triggerFileDownload(url, filename) {
+async function triggerFileDownload(url, filename, title) {
   try {
-    // Dukungan download base64 langsung (Mode simulasi lokal upload)
+    // Muat gambar ke HTMLImageElement untuk pemrosesan canvas
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    
+    // Tampilkan loading toast sementara memproses
+    showToast("Sedang membingkai foto Anda secara estetis...", "info");
+
+    const imgLoadPromise = new Promise((resolve, reject) => {
+      img.onload = () => resolve(img);
+      img.onerror = (e) => reject(new Error("Gagal memuat gambar untuk dirender ke bingkai"));
+    });
+    
+    img.src = url;
+    await imgLoadPromise;
+    
+    // Hitung proporsi bingkai berkelas
+    const W = img.width;
+    const H = img.height;
+    const maxDim = Math.max(W, H);
+    
+    // Parameter desain bingkai galeri seni mewah
+    const borderOuter = Math.round(maxDim * 0.05); // Margin luar kertas 5%
+    const borderBottom = Math.round(maxDim * 0.12); // Margin bawah 12% untuk letak teks info
+    const borderInnerGap = Math.round(maxDim * 0.015); // Celah kertas halus antara garis seni dan foto
+    const thinStroke = Math.round(maxDim * 0.002) || 1; // Garis tinta tipis pembatas
+    
+    // Ukuran canvas total
+    const canvas = document.createElement('canvas');
+    canvas.width = W + (borderOuter * 2) + (borderInnerGap * 2);
+    canvas.height = H + borderOuter + borderBottom + (borderInnerGap * 2);
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error("Gagal membuat konteks grafik canvas");
+    
+    // 1. Gambar latar belakang kertas serat halus galeri (Off-White hangat premium)
+    ctx.fillStyle = '#faf9f6';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 2. Gambar garis pembatas seni halus (Aesthetic Fine Art Line)
+    ctx.strokeStyle = '#d4cfb8'; // Warna krem abu-abu hangat klasik
+    ctx.lineWidth = thinStroke;
+    ctx.strokeRect(
+      borderOuter,
+      borderOuter,
+      W + borderInnerGap * 2,
+      H + borderInnerGap * 2
+    );
+    
+    // 3. Gambar foto asli dengan presisi
+    ctx.drawImage(
+      img,
+      borderOuter + borderInnerGap,
+      borderOuter + borderInnerGap,
+      W,
+      H
+    );
+    
+    // 4. Susun Desain Tipografi Hak Cipta di Bawah Foto
+    // A. Judul Foto: Gaya Serif Italic Klasik
+    const titleSize = Math.max(16, Math.round(maxDim * 0.026));
+    ctx.fillStyle = '#1e293b'; // Slate dark gray
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    ctx.font = `italic 600 ${titleSize}px Georgia, "Playfair Display", Times, serif`;
+    const textY = H + borderOuter + borderInnerGap * 2 + Math.round(borderBottom * 0.35);
+    ctx.fillText(title || 'Abadikan Momen', canvas.width / 2, textY);
+    
+    // B. Ornamen pembatas minimalist di tengah
+    const dividerSize = Math.max(11, Math.round(maxDim * 0.015));
+    ctx.font = `${dividerSize}px Georgia, serif`;
+    ctx.fillStyle = '#d97706'; // Warna aksen kuning safron
+    ctx.fillText('❖', canvas.width / 2, textY + Math.round(borderBottom * 0.22));
+    
+    // C. Hak Cipta: Font Monospace spasi tegas 'by ZennPhoto'
+    const copyrightSize = Math.max(10, Math.round(maxDim * 0.014));
+    ctx.font = `400 ${copyrightSize}px "Courier New", Courier, monospace`;
+    ctx.fillStyle = '#64748b'; // Muted slate gray
+    ctx.fillText('by ZennPhoto', canvas.width / 2, textY + Math.round(borderBottom * 0.45));
+    
+    // 5. Konversi canvas ke file JPEG beresolusi tinggi (kualitas 95%)
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        throw new Error("Gagal mengonversi kanvas ke berkas gambar");
+      }
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(blobUrl);
+      showToast("Foto berhasil diunduh dengan Bingkai Estetis ZennPhoto!", "success");
+    }, 'image/jpeg', 0.95);
+    
+  } catch (err) {
+    console.warn("Kebijakan batasan CORS atau kendala sistem terdeteksi dalam membingkai foto. Mengalirkan unduhan mentah langsung...", err);
+    await triggerRawFileDownload(url, filename);
+  }
+}
+
+// Mengunduh foto murni secara fallback jika browser melarang manipulasi canvas (CORS)
+async function triggerRawFileDownload(url, filename) {
+  try {
     if (url.startsWith('data:')) {
       const a = document.createElement('a');
       a.href = url;
@@ -636,7 +733,7 @@ async function triggerFileDownload(url, filename) {
     window.URL.revokeObjectURL(blobUrl);
     showToast("Foto berhasil diunduh!", "success");
   } catch (err) {
-    console.warn("Issue kebijakan CORS terdeteksi saat unduh Blob. Mengalihkan ke unduhan fallback...", err);
+    console.warn("Gagal melakukan unduhan langsung, mengalihkan ke tab baru...", err);
     const a = document.createElement('a');
     a.href = url;
     a.target = '_blank';

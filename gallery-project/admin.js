@@ -258,14 +258,6 @@ function renderAdminTable() {
         
         <!-- Statistik Indikator Dashboard Admin -->
         <div class="admin-photo-stats" style="display: flex; gap: 16px; margin: 12px 0; font-size: 0.75rem; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
-          <span style="display: flex; align-items: center; gap: 5px;" title="Tayangan">
-            <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
-            <strong>${photo.views || 0}</strong> Tayangan
-          </span>
-          <span style="display: flex; align-items: center; gap: 5px;" title="Menyukai">
-            <i data-lucide="heart" style="width: 14px; height: 14px; color: #ef4444; fill: #ef4444;"></i>
-            <strong>${photo.likes || 0}</strong> Suka
-          </span>
           <span style="display: flex; align-items: center; gap: 5px;" title="Unduhan">
             <i data-lucide="download" style="width: 14px; height: 14px;"></i>
             <strong>${photo.downloads || 0}</strong> Unduhan
